@@ -1,0 +1,12 @@
+# Local development: `docker compose up --build` then open http://localhost:8000
+services:
+  taskapp:
+    build:
+      context: ./app
+      target: runtime
+      args:
+        APP_VERSION: local
+    ports:
+      - "8000:8000"
+    environment:
+      ERROR_RATE: "0.05"
