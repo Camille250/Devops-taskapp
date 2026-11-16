@@ -1,0 +1,37 @@
+# kube-prometheus-stack = Prometheus Operator + Prometheus + Alertmanager +
+# Grafana + node-exporter + kube-state-metrics, pre-wired together.
+prometheus:
+  prometheusSpec:
+    # Pick up ServiceMonitors / PrometheusRules from ANY namespace and release,
+    # not only ones labeled with this Helm release.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    scrapeInterval: 15s
+    retention: 2d
+    resources:
+      requests: { cpu: 100m, memory: 400Mi }
+  service:
+    type: NodePort
+    nodePort: 30090              # matches var.ports.prometheus
+
+alertmanager:
+  service:
+    type: NodePort
+    nodePort: 30903
+
+grafana:
+  service:
+    type: NodePort
+    nodePort: 30300
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard   # ConfigMaps with this label become dashboards
+      searchNamespace: ALL
+
+# kind's control-plane components aren't reachable for scraping; silence noise.
+kubeControllerManager: { enabled: false }
+kubeScheduler: { enabled: false }
+kubeEtcd: { enabled: false }
+kubeProxy: { enabled: false }

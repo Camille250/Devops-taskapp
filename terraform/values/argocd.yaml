@@ -1,0 +1,12 @@
+# Minimal Argo CD for a lab: no HA, no Dex SSO, plain HTTP on a NodePort.
+dex:
+  enabled: false
+configs:
+  params:
+    server.insecure: true        # TLS is handled by the Codespaces proxy (none locally)
+    timeout.reconciliation: 60s  # check Git every 60s (default 180s)
+server:
+  service:
+    type: NodePort
+    nodePortHttp: 30880          # matches var.ports.argocd in variables.tf
+    nodePortHttps: 30843

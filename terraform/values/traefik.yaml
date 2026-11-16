@@ -1,0 +1,16 @@
+# Traefik = ingress controller: reads Ingress objects and routes HTTP to Services.
+service:
+ spec:
+  type: NodePort
+ports:
+  web:
+    nodePort: 30080   # matches kind extra_port_mappings
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+providers:
+  kubernetesIngress:
+    enabled: true
+resources:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits:   { memory: 256Mi }
