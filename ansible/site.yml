@@ -1,0 +1,11 @@
+# Entry point: `ansible-playbook site.yml`
+# Idempotent: run it 10 times, you get the same result as running it once.
+- name: Install DevOps CLI tools on the workstation
+  hosts: workstation
+  roles:
+    - workstation
+
+- name: Run Jenkins (CI server) in Docker
+  hosts: ci
+  roles:
+    - jenkins

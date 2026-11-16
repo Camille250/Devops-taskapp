@@ -1,0 +1,16 @@
+# Variables with defaults; override with -e or group_vars.
+brew_packages:
+  - git
+  - kubectl
+  - helm
+  - kind
+  - hashicorp/tap/terraform
+  - argocd
+  - k9s          # optional terminal UI for Kubernetes
+linux_bin_dir: /usr/local/bin
+# Pinned versions = every machine gets exactly the same tools.
+kubectl_version: v1.34.1
+helm_version: v3.19.0
+kind_version: v0.30.0
+terraform_version: 1.17.1
+linux_arch: "{{ 'arm64' if ansible_facts['architecture'] in ['aarch64', 'arm64'] else 'amd64' }}"

@@ -40,6 +40,7 @@ compose-down: ## Stop Docker Compose
 # ---- Phase 2: Ansible -----------------------------------------------------
 ansible: ## Install tools + start Jenkins
 	cd ansible && ansible-galaxy collection install -r requirements.yml && ansible-playbook site.yml
+.PHONY: ansible
 
 # ---- Phase 3: Terraform ---------------------------------------------------
 infra: ## Create kind cluster + Traefik + Argo CD + Prometheus/Grafana

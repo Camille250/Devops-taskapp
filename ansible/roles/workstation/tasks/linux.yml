@@ -1,0 +1,40 @@
+# Linux (GitHub Codespaces, Ubuntu VMs): install pinned binaries.
+# get_url/unarchive skip the download when the file already exists -> idempotent.
+- name: Install unzip (needed to unpack Terraform)
+  ansible.builtin.apt:
+    name: unzip
+    state: present
+    update_cache: true
+  become: true
+
+- name: Install kubectl
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/{{ linux_arch }}/kubectl"
+    dest: "{{ linux_bin_dir }}/kubectl"
+    mode: "0755"
+  become: true
+
+- name: Install kind
+  ansible.builtin.get_url:
+    url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-linux-{{ linux_arch }}"
+    dest: "{{ linux_bin_dir }}/kind"
+    mode: "0755"
+  become: true
+
+- name: Install Helm
+  ansible.builtin.unarchive:
+    src: "https://get.helm.sh/helm-{{ helm_version }}-linux-{{ linux_arch }}.tar.gz"
+    dest: "{{ linux_bin_dir }}"
+    remote_src: true
+    include: ["linux-{{ linux_arch }}/helm"]
+    extra_opts: [--strip-components=1]
+    creates: "{{ linux_bin_dir }}/helm"
+  become: true
+
+- name: Install Terraform
+  ansible.builtin.unarchive:
+    src: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_{{ linux_arch }}.zip"
+    dest: "{{ linux_bin_dir }}"
+    remote_src: true
+    creates: "{{ linux_bin_dir }}/terraform"
+  become: true

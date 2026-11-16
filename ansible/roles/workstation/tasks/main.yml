@@ -1,0 +1,17 @@
+- name: Check Docker is installed and running (prerequisite)
+  ansible.builtin.command: docker info --format "{{ '{{' }}.ServerVersion{{ '}}' }}"
+  register: docker_info
+  changed_when: false
+  failed_when: docker_info.rc != 0
+
+- name: Show Docker version
+  ansible.builtin.debug:
+    msg: "Docker server {{ docker_info.stdout }} is running"
+
+- name: Install tools on macOS
+  ansible.builtin.include_tasks: macos.yml
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install tools on Linux
+  ansible.builtin.include_tasks: linux.yml
+  when: ansible_facts['system'] == 'Linux'

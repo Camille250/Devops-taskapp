@@ -1,0 +1,2 @@
+jenkins_dir: "{{ playbook_dir }}/../jenkins"
+jenkins_port: 8080

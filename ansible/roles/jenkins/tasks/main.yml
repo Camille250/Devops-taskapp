@@ -1,0 +1,21 @@
+# Jenkins itself is defined in jenkins/ (Dockerfile + compose + JCasC config).
+# Ansible's job: make sure it is built, running, and report the URL.
+- name: Build and start Jenkins with Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ jenkins_dir }}"
+    build: always
+    state: present
+  register: jenkins_compose
+
+- name: Wait for Jenkins to answer HTTP
+  ansible.builtin.uri:
+    url: "http://localhost:{{ jenkins_port }}/login"
+    status_code: 200
+  register: jenkins_up
+  until: jenkins_up.status == 200
+  retries: 30
+  delay: 5
+
+- name: Jenkins is ready
+  ansible.builtin.debug:
+    msg: "Jenkins is up at http://localhost:{{ jenkins_port }} (login admin / see jenkins/.env)"

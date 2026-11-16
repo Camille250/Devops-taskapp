@@ -1,0 +1,14 @@
+services:
+  jenkins:
+    build: .
+    container_name: jenkins
+    restart: unless-stopped
+    user: root
+    ports:
+      - "8080:8080"
+    env_file: .env          # created from .env.example, NOT committed
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # build images with host Docker
+volumes:
+  jenkins_home:
