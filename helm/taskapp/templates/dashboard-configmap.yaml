@@ -1,0 +1,14 @@
+{{- if .Values.monitoring.dashboard }}
+# Grafana's sidecar loads any ConfigMap labeled grafana_dashboard=1.
+# Dashboards as code: versioned, reviewed, reproducible.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-dashboard
+  labels:
+    grafana_dashboard: "1"
+    {{- include "taskapp.labels" . | nindent 4 }}
+data:
+  taskapp.json: |-
+{{ .Files.Get "dashboards/taskapp.json" | indent 4 }}
+{{- end }}

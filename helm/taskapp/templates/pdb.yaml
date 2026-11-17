@@ -1,0 +1,10 @@
+# PodDisruptionBudget: node drains/upgrades must keep at least 1 pod running.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "taskapp.selectorLabels" . | nindent 6 }}

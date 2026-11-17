@@ -1,0 +1,47 @@
+{{- if .Values.loadgen.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-loadgen
+data:
+  loadgen.py: |-
+{{ .Files.Get "files/loadgen.py" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-loadgen
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}-loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-loadgen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-loadgen
+      annotations:
+        checksum/script: {{ .Files.Get "files/loadgen.py" | sha256sum }}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: loadgen
+          image: {{ .Values.loadgen.image }}
+          command: ["python", "/scripts/loadgen.py",
+                    "--url", "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local",
+                    "--rps", "{{ .Values.loadgen.rps }}"]
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits:   { memory: 64Mi }
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ .Release.Name }}-loadgen
+{{- end }}

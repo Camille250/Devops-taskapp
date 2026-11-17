@@ -1,0 +1,2 @@
+TaskApp {{ .Values.image.tag }} deployed to namespace {{ .Release.Namespace }}.
+  App + metrics are served through Traefik (port 8081 on the host): run `make urls`.

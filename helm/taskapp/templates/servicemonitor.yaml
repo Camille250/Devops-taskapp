@@ -1,0 +1,17 @@
+{{- if .Values.monitoring.serviceMonitor }}
+# Tells Prometheus: "scrape /metrics on every pod behind this Service".
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "taskapp.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "taskapp.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+{{- end }}

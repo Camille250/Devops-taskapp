@@ -1,0 +1,41 @@
+{{- if .Values.monitoring.alerts }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "taskapp.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: taskapp.rules
+      rules:
+        # Recording rule: precompute an expensive query once, reuse everywhere.
+        - record: taskapp:error_ratio:rate5m
+          expr: |
+            sum(rate(http_requests_total{namespace="{{ .Release.Namespace }}",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{namespace="{{ .Release.Namespace }}"}[5m]))
+        - alert: TaskAppHighErrorRate
+          expr: taskapp:error_ratio:rate5m > 0.05
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "TaskApp error rate above 5%"
+            description: "{{ "{{" }} $value | humanizePercentage {{ "}}" }} of requests are failing."
+        - alert: TaskAppHighLatencyP95
+          expr: |
+            histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace="{{ .Release.Namespace }}"}[5m]))) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "TaskApp p95 latency above 1s"
+        - alert: TaskAppDown
+          expr: up{job="{{ .Release.Name }}",namespace="{{ .Release.Namespace }}"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "A TaskApp pod is not being scraped"
+{{- end }}

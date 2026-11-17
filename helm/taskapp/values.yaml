@@ -1,0 +1,47 @@
+# Default values. Jenkins rewrites image.repository and image.tag on every build;
+# Argo CD notices the Git change and rolls out the new version.
+replicaCount: 2
+
+image:
+  repository: CAMILLE250/taskapp
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# App config -> env vars (12-factor). Change ERROR_RATE in Git to "break" prod.
+config:
+  errorRate: "0.02"
+  logLevel: INFO
+
+service:
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""          # "" = any hostname. Set e.g. taskapp.example.com in a real env
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi   # no CPU limit on purpose: avoids throttling; memory limit avoids OOM-ing the node
+
+autoscaling:
+  enabled: false    # needs metrics-server; see docs for how to enable
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+# Prometheus Operator integration
+monitoring:
+  serviceMonitor: true
+  alerts: true
+  dashboard: true
+
+# In-cluster traffic generator, so graphs are alive even when you are not curling.
+loadgen:
+  enabled: true
+  rps: 5
+  image: python:3.13-alpine
