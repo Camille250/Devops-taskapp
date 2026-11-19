@@ -3,8 +3,8 @@
 replicaCount: 2
 
 image:
-  repository: CAMILLE250/taskapp
-  tag: "latest"
+  repository: camille250/taskapp
+  tag: "10-ad5057f"
   pullPolicy: IfNotPresent
 
 # App config -> env vars (12-factor). Change ERROR_RATE in Git to "break" prod.
