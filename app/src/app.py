@@ -130,7 +130,7 @@ def create_app():
     def index():
         return (
             "<html><body style='font-family:sans-serif;padding:2rem'>"
-            "<h1>TaskApp</h1>"
+            "<h1>TaskApp v2 - shipped by a pipeline</h1>"
             f"<p>Version: <b>{APP_VERSION}</b></p>"
             f"<p>Served by pod: <b>{HOSTNAME}</b></p>"
             f"<p>Tasks stored: <b>{len(_tasks)}</b></p>"
