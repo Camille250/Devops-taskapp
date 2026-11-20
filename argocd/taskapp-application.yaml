@@ -1,0 +1,31 @@
+# Argo CD Application = "keep namespace taskapp in sync with helm/taskapp in Git".
+# Apply once:  kubectl apply -f argocd/taskapp-application.yaml
+# After that you never `kubectl apply` or `helm install` the app again: you push to Git.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: taskapp
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io   # deleting the App deletes its resources
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Camille250/devops-taskapp.git   # your username is filled in by: make setup
+    targetRevision: main
+    path: helm/taskapp
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: taskapp
+  syncPolicy:
+    automated:
+      prune: true      # resource removed from Git -> removed from cluster
+      selfHeal: true   # someone `kubectl edit`s by hand -> Argo reverts it (drift control)
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff: { duration: 10s, factor: 2, maxDuration: 3m }
